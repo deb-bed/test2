@@ -1,54 +1,43 @@
 
-var upload = document.querySelector(".upload");
+document.querySelector(".go").addEventListener('click', () => {
 
-var imageInput = document.createElement("input");
-imageInput.type = "file";
-imageInput.accept = ".jpeg,.png,.gif";
+    var empty = [];
+    var params = new URLSearchParams();
 
-document.querySelectorAll(".input_holder").forEach((element) => {
+    var imageLinkInput = document.getElementById("imageLink");
+    if (isEmpty(imageLinkInput.value)) {
+        empty.push(imageLinkInput);
+        imageLinkInput.parentElement.classList.add("error_shown");
+    } else {
+        params.append("image", imageLinkInput.value);
+    }
 
-    var input = element.querySelector(".input");
-    input.addEventListener('click', () => {
-        element.classList.remove("error_shown");
-    })
+    document.querySelectorAll(".input_holder").forEach((element) => {
+        var input = element.querySelector(".input");
+        params.append(input.id, input.value);
 
+        if (isEmpty(input.value)) {
+            empty.push(element);
+            element.classList.add("error_shown");
+        }
+    });
+
+    if (empty.length != 0) {
+        empty[0].scrollIntoView();
+    } else {
+        forwardToId(params);
+    }
 });
 
-upload.addEventListener('click', () => {
-    imageInput.click();
-});
+function isEmpty(value) {
+    let pattern = /^\s*$/;
+    return pattern.test(value);
+}
 
-imageInput.addEventListener('change', (event) => {
+function forwardToId(params) {
+    location.href = "/yObywatel/id?" + params;
+}
 
-    upload.classList.remove("upload_loaded");
-    upload.classList.add("upload_loading");
-
-    upload.removeAttribute("selected")
-
-    var file = imageInput.files[0];
-    var data = new FormData();
-    data.append("image", file);
-
-    fetch('	https://api.imgur.com/3/image' ,{
-        method: 'POST',
-        headers: {
-            'Authorization': 'Client-ID 4ecc257cbb25ccc'
-        },
-        body: data
-    })
-    .then(result => result.json())
-    .then(response => {
-        
-        var url = response.data.link;
-        upload.classList.remove("error_shown")
-        upload.setAttribute("selected", url);
-        upload.classList.add("upload_loaded");
-        upload.classList.remove("upload_loading");
-        upload.querySelector(".upload_uploaded").src = url;
-
-    })
-
-})
 
 document.querySelector(".go").addEventListener('click', () => {
 
